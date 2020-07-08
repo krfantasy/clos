@@ -1,6 +1,6 @@
 ; *************************************************************************
-; Copyright (c) 1992 Xerox Corporation.  
-; All Rights Reserved.  
+; Copyright (c) 1992 Xerox Corporation.
+; All Rights Reserved.
 ;
 ; Use, reproduction, and preparation of derivative works are permitted.
 ; Any copy of this software or of any derivative work must include the
@@ -19,10 +19,10 @@
 ; *************************************************************************
 ;
 ; port to R6RS -- 2007 Christian Sloma
-; 
+;
 
 (library (clos private allocation)
-  
+
   (export really-allocate-instance
           really-allocate-entity-instance
           instance?
@@ -33,23 +33,23 @@
           instance-set!
           set-entity-print-name!
           set-instance-printer!)
-  
+
   (import (rnrs)
-          (only (ikarus) 
+          (only (ikarus)
                 define-struct
                 type-descriptor
                 set-rtd-printer!))
-  
+
   (define-struct instance-record (class slots iproc))
 
   (define *entity-table* (make-eq-hashtable))
-  
+
   (define (really-allocate-instance class field-count)
     (make-instance-record class (make-vector field-count) #f))
 
   (define (really-allocate-entity-instance class field-count)
     (let* ((inst (really-allocate-instance class field-count))
-           (proc (case-lambda 
+           (proc (case-lambda
                    (()
                     ((instance-record-iproc inst)))
                    ((a)
@@ -64,28 +64,28 @@
                     (apply (instance-record-iproc inst) args)))))
       (hashtable-set! *entity-table* proc inst)
       (values proc)))
-  
+
   (define (get-instance-record obj)
     (if (instance-record? obj)
         obj
         (and (procedure? obj)
              (hashtable-ref *entity-table* obj #f))))
-  
+
   (define (instance? obj)
     (if (get-instance-record obj) #t #f))
-  
+
   (define (instance-class inst)
     (instance-record-class (get-instance-record inst)))
-  
+
   (define (set-instance-class-to-self! inst)
     (set-instance-record-class! (get-instance-record inst) inst))
-  
+
   (define (set-instance-proc! inst proc)
     (set-instance-record-iproc! (get-instance-record inst) proc))
-  
+
   (define (instance-ref inst idx)
     (vector-ref (instance-record-slots (get-instance-record inst)) idx))
-  
+
   (define (instance-set! inst idx val)
     (vector-set! (instance-record-slots (get-instance-record inst)) idx val))
 
@@ -93,7 +93,7 @@
     'ignore)
 
   (define (set-instance-printer! proc)
-    (set-rtd-printer! (type-descriptor instance-record) 
+    (set-rtd-printer! (type-descriptor instance-record)
       (lambda (x p wr) (proc x p))))
-  
+
   ) ;; library (clos private allocation)

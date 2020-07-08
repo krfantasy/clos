@@ -1,6 +1,6 @@
 ; *************************************************************************
-; Copyright (c) 1992 Xerox Corporation.  
-; All Rights Reserved.  
+; Copyright (c) 1992 Xerox Corporation.
+; All Rights Reserved.
 ;
 ; Use, reproduction, and preparation of derivative works are permitted.
 ; Any copy of this software or of any derivative work must include the
@@ -19,10 +19,10 @@
 ; *************************************************************************
 ;
 ; port to R6RS -- 2007 Christian Sloma
-; 
+;
 
 (library (clos private allocation)
-  
+
   (export really-allocate-instance
           really-allocate-entity-instance
           instance?
@@ -33,24 +33,24 @@
           instance-set!
           set-entity-print-name!
           set-instance-printer!)
-  
+
   (import (only (rnrs) define-record-type define lambda opaque sealed fields mutable case-lambda apply if
                 make-eq-hashtable make-vector let* hashtable-set! values and procedure? hashtable-ref vector-ref
                 vector-set! quote))
-  
+
   (define-record-type instance-record
     (opaque #t)
     (sealed #t)
     (fields (mutable class) slots (mutable iproc)))
-  
+
   (define *entity-table* (make-eq-hashtable))
-  
+
   (define (really-allocate-instance class field-count)
     (make-instance-record class (make-vector field-count) #f))
 
   (define (really-allocate-entity-instance class field-count)
     (let* ((inst (really-allocate-instance class field-count))
-           (proc (case-lambda 
+           (proc (case-lambda
                    (()
                     ((instance-record-iproc inst)))
                    ((a)
@@ -65,28 +65,28 @@
                     (apply (instance-record-iproc inst) args)))))
       (hashtable-set! *entity-table* proc inst)
       (values proc)))
-  
+
   (define (get-instance-record obj)
     (if (instance-record? obj)
         obj
         (and (procedure? obj)
              (hashtable-ref *entity-table* obj #f))))
-  
+
   (define (instance? obj)
     (if (get-instance-record obj) #t #f))
-  
+
   (define (instance-class inst)
     (instance-record-class (get-instance-record inst)))
-  
+
   (define (set-instance-class-to-self! inst)
     (instance-record-class-set! (get-instance-record inst) inst))
-  
+
   (define (set-instance-proc! inst proc)
     (instance-record-iproc-set! (get-instance-record inst) proc))
-  
+
   (define (instance-ref inst idx)
     (vector-ref (instance-record-slots (get-instance-record inst)) idx))
-  
+
   (define (instance-set! inst idx val)
     (vector-set! (instance-record-slots (get-instance-record inst)) idx val))
 
@@ -95,5 +95,5 @@
 
   (define (set-instance-printer! proc)
     'ignore)
-  
+
   ) ;; library (clos private allocation)

@@ -1,6 +1,6 @@
 ; *************************************************************************
-; Copyright (c) 1992 Xerox Corporation.  
-; All Rights Reserved.  
+; Copyright (c) 1992 Xerox Corporation.
+; All Rights Reserved.
 ;
 ; Use, reproduction, and preparation of derivative works are permitted.
 ; Any copy of this software or of any derivative work must include the
@@ -19,17 +19,17 @@
 ; *************************************************************************
 ;
 ; port to R6RS -- 2007 Christian Sloma
-; 
+;
 
 (library (clos std-protocols generic-invocation)
-  
+
   (export register-generic-invocation-generics!
           generic-invocation-generic?
           generic-compute-apply-generic
           generic-compute-apply-methods
           generic-compute-methods
           generic-compute-method-more-specific?)
-           
+
   (import (only (rnrs) define set! or eq? let case-lambda if and quote list car apply lambda
                 list-sort filter cond null? not error else cdr let-values values reverse case
                 cons map let* append begin memq)
@@ -39,10 +39,10 @@
 
   (define compute-apply-generic #f)
   (define compute-apply-methods #f)
-  (define compute-methods #f)      
+  (define compute-methods #f)
   (define compute-method-more-specific? #f)
 
-  (define (register-generic-invocation-generics! 
+  (define (register-generic-invocation-generics!
            gf-compute-apply-generic
            gf-compute-apply-methods
            gf-compute-methods
@@ -56,13 +56,13 @@
           gf-compute-methods)
     (set! compute-method-more-specific?
           gf-compute-method-more-specific?))
-  
+
   (define (generic-invocation-generic? obj)
     (or (eq? obj compute-apply-generic)
         (eq? obj compute-apply-methods)
         (eq? obj compute-methods)
         (eq? obj compute-method-more-specific?)))
-  
+
   (define (generic-compute-apply-generic generic)
     (let ((fallback (and (generic-invocation-generic? generic)
                          (method-procedure (last (generic-methods generic)))))
@@ -95,27 +95,27 @@
          (if (and fallback (generic-invocation-generic? (car args)))
              (apply fallback generic '() args)
              ((dispatch args) args))))))
-  
+
   (define (generic-compute-methods generic args)
     (let ((applicable
            (filter (lambda (method)
-                     (every-2 applicable? 
-                              (method-specializers method) 
+                     (every-2 applicable?
+                              (method-specializers method)
                               args))
                    (generic-methods generic)))
           (method-more-specific?
            (compute-method-more-specific? generic args)))
       (list-sort method-more-specific? applicable)))
-  
+
   (define (generic-compute-method-more-specific? generic args)
-    (lambda (m1 m2) 
+    (lambda (m1 m2)
       (let loop ((specls1 (method-specializers m1))
                  (specls2 (method-specializers m2))
                  (args args))
         (cond ((and (null? specls1) (null? specls2))
                (if (not (eq? (method-qualifier m1)
                              (method-qualifier m2)))
-                   #f 
+                   #f
                    (error 'compute-method-more-specific?
                           "Two methods are equally specific.")))
               ((or  (null? specls1) (null? specls2))
@@ -133,7 +133,7 @@
                            (cdr specls2)
                            (cdr args))
                      (more-specific? c1 c2 arg))))))))
-  
+
   (define (generic-compute-apply-methods generic methods)
     (let-values (((arround-methods
                    before-methods
@@ -154,7 +154,7 @@
                                         before-methods
                                         primary-methods
                                         after-methods)))))
-  
+
   (define (sort-methods-by-qualifier methods)
     (let loop ((methods         methods)
                (arround-methods '())
@@ -165,7 +165,7 @@
           (values (reverse arround-methods)
                   (reverse before-methods)
                   (reverse primary-methods)
-                  ;; after-methods are applied 
+                  ;; after-methods are applied
                   ;; in reverse order
                   after-methods)
           (case (method-qualifier (car methods))
@@ -197,17 +197,17 @@
              (error 'apply
                     "wrong method-qualifier"
                     (car methods)))))))
-  
+
   (define (compute-apply-no-primary-methods generic)
     (lambda (args)
       (error 'apply "No applicable methods." generic args)))
-  
-  (define (compute-apply-primary-methods generic 
+
+  (define (compute-apply-primary-methods generic
                                          primary-methods)
     (let ((procs (map method-procedure primary-methods)))
       (lambda (args)
         (apply-nested-procs generic procs args))))
-  
+
   (define (compute-apply-arround-methods generic
                                          arround-methods
                                          before-methods
@@ -218,33 +218,33 @@
            (primary-procs (map method-procedure primary-methods))
            (after-procs   (map method-procedure after-methods))
            (inner-proc    (lambda (generic empty-list . args)
-                            (apply-before/after-procs generic 
-                                                      before-procs 
+                            (apply-before/after-procs generic
+                                                      before-procs
                                                       args)
-                            (let ((result (apply-nested-procs generic 
-                                                              primary-procs 
+                            (let ((result (apply-nested-procs generic
+                                                              primary-procs
                                                               args)))
-                              (apply-before/after-procs generic 
-                                                        after-procs 
+                              (apply-before/after-procs generic
+                                                        after-procs
                                                         args)
                               result)))
            (procs         (append arround-procs (list inner-proc))))
       (lambda (args)
         (apply-nested-procs generic procs args))))
-  
+
   (define (apply-nested-procs generic procs args)
     (apply (car procs) generic (cdr procs) args))
-  
+
   (define (apply-before/after-procs generic procs args)
     (if (not (null? procs))
         (begin
           (apply (car procs) generic '() args)
           (apply-before/after-procs generic (cdr procs) args))))
- 
+
   (define (applicable? c arg)
     (memq c (class-precedence-list (class-of arg))))
-  
+
   (define (more-specific? c1 c2 arg)
     (memq c2 (memq c1 (class-precedence-list (class-of arg)))))
-  
+
   ) ;; library (clos std-protocols generic-invocation)
