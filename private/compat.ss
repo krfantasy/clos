@@ -1,6 +1,6 @@
 
 (library (clos private compat)
-  
+
   (export every-2
           append-map
           last
@@ -11,7 +11,8 @@
 
   (import (rnrs)
           (only (surfage s1 lists) append-map last)
-          (surfage s39 parameters))
+	  (surfage s39 parameters)
+          (surfage s48 intermediate-format-strings))
 
   ;; enough
   (define (pointer-value obj)
@@ -19,7 +20,7 @@
 
   (define (position obj lst)
     (let loop ((lst lst) (idx 0) (obj obj))
-      (cond 
+      (cond
         ((null? lst)
          #f)
         ((eq? (car lst) obj)
@@ -41,10 +42,7 @@
           (if (pair? def)
               (car def)
               (error 'get-arg
-                     (string-append "mandatory keyword argument "
-                                    key
-                                    " missing in "
-                                    lst)))
+		     (format "mandatory keyword argument ~A missing in ~A" key lst)))
           (cadr probe))))
-  
+
   ) ;; library (clos private compat)
