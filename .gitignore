@@ -1,0 +1,9 @@
+# Emacs
+*~
+\#*\#
+.\#*
+
+
+# Chez Scheme
+*.fasl
+*.fsl
