@@ -10,9 +10,9 @@
           pointer-value)
 
   (import (rnrs)
-          (only (surfage s1 lists) append-map last)
-	  (surfage s39 parameters)
-          (surfage s48 intermediate-format-strings))
+          (only (srfi :1 lists) append-map last)
+	  (srfi :39 parameters)
+          (srfi :48 intermediate-format-strings))
 
   ;; enough
   (define (pointer-value obj)
