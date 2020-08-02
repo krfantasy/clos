@@ -82,8 +82,8 @@
                 define quote begin lambda let cond or eq? else error
                 list if null? car pair? boolean? symbol? procedure?
                 number? vector? hashtable? char? string? input-port?
-                output-port? cons reverse complex? real? rational? fixnum? flonum?
-                list? port? bytevector? eof-object?
+                output-port? port? cons reverse not complex? real? rational? integer? fixnum? flonum?
+                list? bytevector? eof-object?
                 condition? warning? message-condition? irritants-condition? who-condition?
                 serious-condition? error? violation? assertion-violation? non-continuable-violation?
                 implementation-restriction-violation? lexical-violation? syntax-violation?
@@ -273,8 +273,9 @@
       ((number? x)
        (cond
         ((fixnum? x)    <fixnum>)
-        ((flonum? x)    <flonum>)
+        ((integer? x)   <integer>)
         ((rational? x)  <rational>)
+        ((flonum? x)    <flonum>)
         ((real? x)      <real>)
         ((complex? x)   <complex>)
         (else           <number>)))
@@ -287,11 +288,10 @@
       ((eof-object? x)  <eof-object>)
 
       ((port? x)
-       (if (input-port? x)
-           (if (output-port? x)
-               <input/output-port>
-               <input-port>)
-           <output-port>))
+       (cond
+        ((not (output-port? x)) <input-port>)
+        ((not (input-port? x))  <output-port>)
+        (else                   <input/output-port>)))
 
       ((condition? x)
        (cond
