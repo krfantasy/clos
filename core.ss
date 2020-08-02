@@ -1,6 +1,6 @@
 ; *************************************************************************
-; Copyright (c) 1992 Xerox Corporation.  
-; All Rights Reserved.  
+; Copyright (c) 1992 Xerox Corporation.
+; All Rights Reserved.
 ;
 ; Use, reproduction, and preparation of derivative works are permitted.
 ; Any copy of this software or of any derivative work must include the
@@ -19,14 +19,14 @@
 ; *************************************************************************
 ;
 ; port to R6RS -- 2007 Christian Sloma
-; 
+;
 
-(library (clos core) 
-  
-  (export 
-   
+(library (clos core)
+
+  (export
+
    ;; classes
-   
+
    <class>
    <top>
    <object>
@@ -34,9 +34,9 @@
    <entity-class>
    <generic>
    <method>
-   
+
    ;; generic functions
-   
+
    make
    initialize
    allocate-instance
@@ -49,14 +49,14 @@
    compute-method-more-specific?
    compute-apply-methods
    print-object
-   
+
    ;; slot access
-   
+
    slot-ref
    slot-set!
-   
+
    ;; introspection
-   
+
    class-of
    class-direct-supers
    class-direct-slots
@@ -67,17 +67,23 @@
    method-specializers
    method-procedure
    method-qualifier
-   
+   instance?
+   class?
+   subclass?
+   generic?
+   method?
+   instance-of?
+
    ;; helpers
-   
+
    get-arg
    unmangle-class-name
    print-unreadable-object
    print-object-with-slots
    initialize-direct-slots
-   
+
    ) ;; export
-  
+
   (import (only (clos bootstrap standard-classes)
                 <method> <generic> <entity-class> <procedure-class>
                 <object> <top> <class>)
@@ -92,5 +98,5 @@
           (clos introspection)
           (clos private compat)
           (clos helpers))
-  
-  ) ;; library (clos core) 
+
+  ) ;; library (clos core)

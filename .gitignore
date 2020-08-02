@@ -4,6 +4,7 @@
 .\#*
 
 
-# Chez Scheme
+*.o
+*.so
 *.fasl
 *.fsl

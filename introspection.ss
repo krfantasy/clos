@@ -1,6 +1,6 @@
 ; *************************************************************************
-; Copyright (c) 1992 Xerox Corporation.  
-; All Rights Reserved.  
+; Copyright (c) 1992 Xerox Corporation.
+; All Rights Reserved.
 ;
 ; Use, reproduction, and preparation of derivative works are permitted.
 ; Any copy of this software or of any derivative work must include the
@@ -19,7 +19,7 @@
 ; *************************************************************************
 ;
 ; port to R6RS -- 2007 Christian Sloma
-; 
+;
 
 (library (clos introspection)
 
@@ -33,47 +33,71 @@
           generic-methods
           method-specializers
           method-qualifier
-          method-procedure)
-  
-  (import (only (rnrs) define set! if quote)
+          method-procedure
+          instance?
+          class?
+          subclass?
+          generic?
+          method?
+          instance-of?)
+
+  (import (only (rnrs) define set! if quote and or eq? memq let)
           (clos private allocation)
           (clos slot-access))
 
   (define primitive-class-of #f)
-  
+
   (define (set-primitive-class-of! proc)
     (set! primitive-class-of proc))
-  
+
   (define (class-of obj)
-    (if (instance? obj)    
+    (if (instance? obj)
         (instance-class obj)
         (primitive-class-of obj)))
-  
+
   (define (class-direct-supers class)
     (slot-ref class 'direct-supers))
-  
+
   (define (class-direct-slots class)
     (slot-ref class 'direct-slots))
-  
+
   (define (class-precedence-list class)
     (slot-ref class 'precedence-list))
-  
+
   (define (class-slots class)
     (slot-ref class 'slots))
 
   (define (class-definition-name class)
     (slot-ref class 'definition-name))
-  
+
   (define (generic-methods generic)
     (slot-ref generic 'methods))
-  
+
   (define (method-specializers method)
     (slot-ref method 'specializers))
-  
+
   (define (method-qualifier method)
     (slot-ref method 'qualifier))
 
   (define (method-procedure method)
     (slot-ref method 'procedure))
-  
+
+  (define (class? obj)
+    (and (instance? obj) (eq? '<class> (class-definition-name (class-of obj)))))
+
+  (define (subclass? sub cls)
+    (and (class? sub) (class? cls) (if (memq cls (class-precedence-list sub)) #t #f)))
+
+  (define (generic? obj)
+    (and (instance? obj) (eq? '<generic> (class-definition-name (class-of obj)))))
+
+  (define (method? obj)
+    (and (instance? obj) (eq? '<method> (class-definition-name (class-of obj)))))
+
+  (define (instance-of? obj cls)
+    (and (instance? obj) (class? cls)
+         (let ([obj-cls (class-of obj)])
+           (or (eq? cls obj-cls)
+               (subclass? obj-cls cls)))))
+
   ) ;; library (clos introspection)
