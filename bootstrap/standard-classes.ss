@@ -273,9 +273,9 @@
       ((number? x)
        (cond
         ((fixnum? x)    <fixnum>)
+        ((flonum? x)    <flonum>)
         ((integer? x)   <integer>)
         ((rational? x)  <rational>)
-        ((flonum? x)    <flonum>)
         ((real? x)      <real>)
         ((complex? x)   <complex>)
         (else           <number>)))
