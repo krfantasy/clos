@@ -35,6 +35,52 @@
    <generic>
    <method>
 
+   ;; primitive classes
+   <pair>
+   <list>
+   <null>
+   <symbol>
+   <boolean>
+   <procedure>
+
+   <number>
+   <complex>
+   <real>
+   <rational>
+   <integer>
+   <fixnum>
+   <flonum>
+
+   <vector>
+   <hashtable>
+   <bytevector>
+   <char>
+   <string>
+   <eof-object>
+
+   <port>
+   <input-port>
+   <output-port>
+   <input/output-port>
+
+   <condition>
+   <warning>
+   <serious-condition>
+   <message-condition>
+   <irritants-condition>
+   <who-condition>
+   <serious-condition>
+   <error>
+   <violation>
+   <assertion-violation>
+   <non-continuable-violation>
+   <implementation-restriction-violation>
+   <lexical-violation>
+   <syntax-violation>
+   <undefined-violation>
+
+   <record>
+
    ;; generic functions
 
    make
@@ -84,9 +130,7 @@
 
    ) ;; export
 
-  (import (only (clos bootstrap standard-classes)
-                <method> <generic> <entity-class> <procedure-class>
-                <object> <top> <class>)
+  (import (clos bootstrap standard-classes)
           (only (clos bootstrap generic-functions)
                 print-object compute-apply-methods
                 compute-method-more-specific?
