@@ -1,6 +1,6 @@
 ; *************************************************************************
-; Copyright (c) 1992 Xerox Corporation.  
-; All Rights Reserved.  
+; Copyright (c) 1992 Xerox Corporation.
+; All Rights Reserved.
 ;
 ; Use, reproduction, and preparation of derivative works are permitted.
 ; Any copy of this software or of any derivative work must include the
@@ -19,7 +19,7 @@
 ; *************************************************************************
 ;
 ; port to R6RS -- 2007 Christian Sloma
-; 
+;
 
 (library (clos helpers)
 
@@ -27,9 +27,10 @@
           print-unreadable-object
           print-object-with-slots
           initialize-direct-slots)
-  
+
   (import (only (rnrs) define define-syntax syntax-rules let if and >= string-length char=? string-ref - ... lambda
                 string->symbol substring symbol->string display when write or quote null? not caar cdr
+                unless length odd? error car cadr cddr
                 )
           (only (clos introspection) class-definition-name class-of class-slots class-direct-slots)
           (only (clos slot-access) slot-ref slot-set!)
@@ -77,9 +78,11 @@
           (loop (cdr slots))))))
 
   (define (initialize-direct-slots obj cls init-args)
-    (let loop ((slots (class-direct-slots cls)))
-      (when (not (null? slots))
-        (slot-set! obj (caar slots) (get-arg (caar slots) init-args))
-        (loop (cdr slots)))))
-  
+    (if (odd? (length init-args))
+        (error 'initialize-direct-slots "init-args must have even number elements" init-args)
+        (let loop ([args init-args])
+          (unless (null? args)
+            (slot-set! obj (car args) (cadr args))
+            (loop (cddr args))))))
+
   ) ;; library (clos helpers)

@@ -1,6 +1,6 @@
 ; *************************************************************************
-; Copyright (c) 1992 Xerox Corporation.  
-; All Rights Reserved.  
+; Copyright (c) 1992 Xerox Corporation.
+; All Rights Reserved.
 ;
 ; Use, reproduction, and preparation of derivative works are permitted.
 ; Any copy of this software or of any derivative work must include the
@@ -19,15 +19,15 @@
 ; *************************************************************************
 ;
 ; port to R6RS -- 2007 Christian Sloma
-; 
+;
 
 (library (clos slot-access)
-  
+
   (export slot-ref
           slot-set!
           register-class-of-classes!)
-  
-  (import (only (rnrs) define set! let if eq? cadr caddr assq quote)
+
+  (import (only (rnrs) define set! let if eq? cadr caddr assq quote error)
           (clos private allocation)
           (clos private core-class-layout)
           (clos private compat))
@@ -36,23 +36,27 @@
 
   (define (register-class-of-classes! class)
     (set! <class> class))
-  
+
   (define (slot-ref inst slot-name)
     (let ((class (instance-class inst)))
       (if (eq? class <class>) ;; break loop -- assumes <class> does not change
           (instance-ref inst (position slot-name core-class-slot-names))
           (let ((slot-info (get-slot-info class slot-name)))
-            ((cadr slot-info) inst)))))
-  
+            (if slot-info
+                ((cadr slot-info) inst)
+                (error 'slot-ref "invalid slot name" slot-name))))))
+
   (define (slot-set! inst slot-name val)
     (let ((class (instance-class inst)))
       (if (eq? class <class>) ;; break loop -- assumes <class> does not change
           (instance-set! inst (position slot-name core-class-slot-names) val)
           (let ((slot-info (get-slot-info class slot-name)))
-            ((caddr slot-info) inst val)))))
-  
+            (if slot-info
+                ((caddr slot-info) inst val)
+                (error 'slot-set! "invalid slot name" slot-name))))))
+
   (define (get-slot-info class slot-name)
     (let ((getters-and-setters (slot-ref class 'getters-and-setters)))
       (assq slot-name getters-and-setters)))
-  
+
   ) ;; library (clos slot-access)
