@@ -80,6 +80,7 @@
    <undefined-violation>
 
    <record>
+   <record-type-descriptor>
 
    ;; generic functions
 
@@ -115,6 +116,7 @@
    method-qualifier
    instance?
    class?
+   primitive-class?
    subclass?
    generic?
    method?

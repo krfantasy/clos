@@ -75,6 +75,7 @@
           <undefined-violation>
 
           <record>
+          <record-type-descriptor>
 
           bootstrap-make)
 
@@ -88,7 +89,7 @@
                 serious-condition? error? violation? assertion-violation? non-continuable-violation?
                 implementation-restriction-violation? lexical-violation? syntax-violation?
                 undefined-violation?
-                record?
+                record? record-type-descriptor?
                 )
 
           (clos private allocation)
@@ -209,7 +210,7 @@
   (define (make-primitive-subclass name . supers)
     (bootstrap-make <primitive-class>
       'definition-name name
-      'direct-supers   (reverse (cons <top> supers))
+      'direct-supers   supers
       'direct-slots    (list)))
 
   (define <pair>        (make-primitive-class '<pair>))
@@ -243,6 +244,7 @@
     (make-primitive-subclass '<input/output-port> <input-port> <output-port>))
 
   (define <record>      (make-primitive-class '<record>))
+  (define <record-type-descriptor> (make-primitive-subclass '<record-type-descriptor> <record>))
 
   ;; condition
   (define <condition>   (make-primitive-subclass '<condition> <record>))
@@ -264,9 +266,8 @@
 
   (define (primitive-class-of x)
     (cond
-      ((list? x)        <list>)
-      ((pair? x)        <pair>)
       ((null? x)        <null>)
+      ((pair? x)        (if (list? x) <list> <pair>))
       ((boolean? x)     <boolean>)
       ((symbol? x)      <symbol>)
       ((procedure? x)   <procedure>)
@@ -319,7 +320,7 @@
                                      (else <serious-condition>)))
         (else <condition>)))
 
-      ((record? x)      <record>)
+      ((record? x)      (if (record-type-descriptor? x) <record-type-descriptor> <record>))
       (else             <top>)))
 
   (set-primitive-class-of! primitive-class-of)
