@@ -36,6 +36,7 @@
           method-procedure
           instance?
           class?
+          primitive-class?
           subclass?
           generic?
           method?
@@ -83,7 +84,13 @@
     (slot-ref method 'procedure))
 
   (define (class? obj)
-    (and (instance? obj) (eq? '<class> (class-definition-name (class-of obj)))))
+    (and (instance? obj)
+         (let ((name (class-definition-name (class-of obj))))
+           (or (eq? '<class> name)
+               (eq? '<primitive-class> name)))))
+
+  (define (primitive-class? obj)
+    (and (instance? obj) (eq? '<primitive-class> (class-definition-name (class-of obj)))))
 
   (define (subclass? sub cls)
     (and (class? sub) (class? cls) (if (memq cls (class-precedence-list sub)) #t #f)))
@@ -95,7 +102,7 @@
     (and (instance? obj) (eq? '<method> (class-definition-name (class-of obj)))))
 
   (define (instance-of? obj cls)
-    (and (instance? obj) (class? cls)
+    (and (class? cls)
          (let ([obj-cls (class-of obj)])
            (or (eq? cls obj-cls)
                (subclass? obj-cls cls)))))
